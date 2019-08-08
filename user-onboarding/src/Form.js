@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Form as FormikForm, Field, withFormik } from 'formik';
 import * as Yup from 'yup';
@@ -8,6 +8,19 @@ const Form = ({ errors, touched, values, handleSubmit, status }) => {
 		users,
 		setUser
 	] = useState([]);
+
+	useEffect(
+		() => {
+			status &&
+				setUser([
+					...users,
+					status
+				]);
+		},
+		[
+			status
+		]
+	);
 
 	console.log('this is the status', status);
 	console.log('this is the users list', users);
@@ -55,14 +68,11 @@ const FormikUserForm = withFormik({
 			.required('Just check the box..')
 	}),
 
-	handleSubmit (values, { setStatus, status, setUser, users }) {
+	handleSubmit (values, { setStatus }) {
 		axios
 			.post('https://reqres.in/api/users/', values)
 			.then((res) => {
 				setStatus(res.data);
-			})
-			.then((res) => {
-				setUser({ ...users, status });
 			})
 			.catch((err) => console.log(err.response));
 	}
