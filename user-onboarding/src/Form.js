@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Form as FormikForm, Field, withFormik } from 'formik';
+import Users from './Users';
 import * as Yup from 'yup';
 
 const Form = ({ errors, touched, values, handleSubmit, status }) => {
@@ -26,6 +27,8 @@ const Form = ({ errors, touched, values, handleSubmit, status }) => {
 	console.log('this is the users list', users);
 
 	return (
+        <>
+        <div className="panel">
 		<div className="user-form">
 			<h1>User Onboarding</h1>
 			<FormikForm>
@@ -41,12 +44,20 @@ const Form = ({ errors, touched, values, handleSubmit, status }) => {
 				<label className="checkbox-container">
 					<p className="terms-service">Terms of Service</p>
 					<Field type="checkbox" name="terms" checked={values.terms} />
+                    {touched.terms && errors.terms && <p className="terms-error">{errors.terms}</p>}
+
 					<span className="checkmark" />
 				</label>
 
 				<button type="submit">Submit!</button>
 			</FormikForm>
 		</div>
+        </div>
+        <div className="panel">
+            <h1>User List</h1>
+        <Users users={users} />
+        </div>
+        </>
 	);
 };
 const FormikUserForm = withFormik({
@@ -63,9 +74,12 @@ const FormikUserForm = withFormik({
 		name     : Yup.string().required('You cannot pass!!!'),
 		email    : Yup.string().email('Enter a VALID email').required('You want in, you gotta pay to play'),
 		password : Yup.string().min(6, 'Password has to be longer than 6 characters').required('Cannot pass'),
-		terms    : Yup.bool()
-			.test('consent', 'You have to agree!', (values) => values === true)
-			.required('Just check the box..')
+		terms    : Yup.bool().oneOf(
+            [true],
+            'You must accept the terms of service to continue.'
+          )
+      
+			
 	}),
 
 	handleSubmit (values, { setStatus }) {
